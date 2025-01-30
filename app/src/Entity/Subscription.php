@@ -14,7 +14,10 @@ class Subscription
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    /**
+     * @var Contact|null The contact who subscribed to the product.
+     */
+    #[ORM\ManyToOne(inversedBy: 'subscriptions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Contact $contact = null;
 
@@ -28,6 +31,7 @@ class Subscription
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $endDate = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -38,7 +42,7 @@ class Subscription
         return $this->contact;
     }
 
-    public function setContact(Contact $contact): static
+    public function setContact(?Contact $contact): static
     {
         $this->contact = $contact;
 
@@ -80,4 +84,5 @@ class Subscription
 
         return $this;
     }
+
 }
