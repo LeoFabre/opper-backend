@@ -56,24 +56,12 @@ final class SubscriptionController extends AbstractController
         ]
     )]
     #[Route('/subscription/{idContact}', name: 'get_subscriptions_by_contact', methods: ['GET'])]
-    public function getByContactID(int $idContact, ContactRepository $contactRepository): JsonResponse
+    public function getByContactID(
+        int                 $idContact,
+        SubscriptionService $subscriptionService
+    ): JsonResponse
     {
-        $contact = $contactRepository->find($idContact);
-
-        if (!$contact) {
-            return new JsonResponse(['message' => 'Contact not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $subscriptions = $contact->getSubscriptions();
-        $subscriptionsArray = $subscriptions->map(fn($subscription) => [
-            'subscriptionId' => $subscription->getId(),
-            'subscriptionProductId' => $subscription->getProduct()->getId(),
-            'subscriptionProductLabel' => $subscription->getProduct()->getLabel(),
-            'subscriptionStartDate' => $subscription->getBeginDate()->format('Y-m-d'),
-            'subscriptionEndDate' => $subscription->getEndDate()->format('Y-m-d'),
-        ])->toArray();
-
-        return $this->json($subscriptionsArray);
+        return $subscriptionService->findByContactID($idContact);
     }
 
     #[OA\Post(
@@ -125,7 +113,7 @@ final class SubscriptionController extends AbstractController
             return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
         }
 
-        return $subscriptionService->createSubscription($dto);
+        return $subscriptionService->create($dto);
     }
 
     #[OA\Put(
@@ -167,20 +155,13 @@ final class SubscriptionController extends AbstractController
     )]
     #[Route('/subscription/{idSubscription}', name: 'update_subscription', methods: ['PUT'])]
     public function update(
-        int                    $idSubscription,
-        Request                $request,
-        SubscriptionRepository $subscriptionRepository,
-        EntityManagerInterface $entityManager,
-        ValidatorInterface     $validator
+        int                 $idSubscription,
+        Request             $request,
+        ValidatorInterface  $validator,
+        SubscriptionService $subscriptionService
     ): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
-        $subscription = $subscriptionRepository->find($idSubscription);
-        if (!$subscription) {
-            return new JsonResponse(['message' => 'Subscription not found'], Response::HTTP_NOT_FOUND);
-        }
-
         $dto = new SubscriptionDTO($data);
 
         $errors = $validator->validate($dto);
@@ -191,20 +172,7 @@ final class SubscriptionController extends AbstractController
             }
             return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
         }
-
-        $beginDate = \DateTime::createFromFormat('Y-m-d', $dto->beginDate);
-        $endDate = \DateTime::createFromFormat('Y-m-d', $dto->endDate);
-
-        if (!$beginDate || !$endDate) {
-            return new JsonResponse(['message' => 'Invalid date format (expected Y-m-d)'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $subscription->setBeginDate($beginDate);
-        $subscription->setEndDate($endDate);
-
-        $entityManager->flush();
-
-        return new JsonResponse(['message' => 'Subscription updated successfully']);
+        return $subscriptionService->update($idSubscription, $dto);
     }
 
     #[OA\Delete(
@@ -238,20 +206,10 @@ final class SubscriptionController extends AbstractController
     )]
     #[Route('/subscription/{idSubscription}', name: 'delete_subscription', methods: ['DELETE'])]
     public function delete(
-        int                    $idSubscription,
-        SubscriptionRepository $subscriptionRepository,
-        EntityManagerInterface $entityManager
+        int                 $idSubscription,
+        SubscriptionService $subscriptionService
     ): JsonResponse
     {
-        $subscription = $subscriptionRepository->find($idSubscription);
-        if (!$subscription) {
-            return new JsonResponse(['message' => 'Subscription not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $entityManager->remove($subscription);
-        $entityManager->flush();
-
-        return new JsonResponse(['message' => 'Subscription deleted successfully']);
+        return $subscriptionService->delete($idSubscription);
     }
-
 }

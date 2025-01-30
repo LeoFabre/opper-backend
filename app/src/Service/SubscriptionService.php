@@ -6,6 +6,7 @@ use App\Entity\Contact;
 use App\Entity\Subscription;
 use App\Repository\ContactRepository;
 use App\Repository\ProductRepository;
+use App\Repository\SubscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,31 @@ class SubscriptionService
     public function __construct(
         private ContactRepository $contactRepository,
         private ProductRepository $productRepository,
+        private SubscriptionRepository $subscriptionRepository,
         private EntityManagerInterface $entityManager
     ) {}
 
-    public function createSubscription(SubscriptionDTO $dto): JsonResponse
+    public function findByContactID(int $idContact): JsonResponse
+    {
+        $contact = $this->contactRepository->find($idContact);
+
+        if (!$contact) {
+            return new JsonResponse(['message' => 'Contact not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $subscriptions = $contact->getSubscriptions();
+        $subscriptionsArray = $subscriptions->map(fn($subscription) => [
+            'subscriptionId' => $subscription->getId(),
+            'subscriptionProductId' => $subscription->getProduct()->getId(),
+            'subscriptionProductLabel' => $subscription->getProduct()->getLabel(),
+            'subscriptionStartDate' => $subscription->getBeginDate()->format('Y-m-d'),
+            'subscriptionEndDate' => $subscription->getEndDate()->format('Y-m-d'),
+        ])->toArray();
+
+        return new JsonResponse($subscriptionsArray);
+    }
+
+    public function create(SubscriptionDTO $dto): JsonResponse
     {
         $contact = $this->contactRepository->findOneBy([
             'name' => $dto->contactName,
@@ -53,8 +75,13 @@ class SubscriptionService
         ], Response::HTTP_CREATED);
     }
 
-    public function updateSubscription(Subscription $subscription, SubscriptionDTO $dto): JsonResponse
+    public function update(int $idSubscription, SubscriptionDTO $dto): JsonResponse
     {
+        $subscription = $this->subscriptionRepository->find($idSubscription);
+        if (!$subscription) {
+            return new JsonResponse(['message' => 'Subscription not found'], Response::HTTP_NOT_FOUND);
+        }
+
         $beginDate = \DateTime::createFromFormat('Y-m-d', $dto->beginDate);
         $endDate = \DateTime::createFromFormat('Y-m-d', $dto->endDate);
 
@@ -68,5 +95,18 @@ class SubscriptionService
         $this->entityManager->flush();
 
         return new JsonResponse(['message' => 'Subscription updated successfully']);
+    }
+
+    public function delete(int $idSubscription): JsonResponse
+    {
+        $subscription = $this->subscriptionRepository->find($idSubscription);
+        if (!$subscription) {
+            return new JsonResponse(['message' => 'Subscription not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $this->entityManager->remove($subscription);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Subscription deleted successfully']);
     }
 }
