@@ -1,0 +1,9 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: opper-backend
+            description: CRUD API Docs for opper-backend, Hire me ! :D
+            version: 1.0.0
+    areas:
+        path_patterns:
+            - ^/subscription
