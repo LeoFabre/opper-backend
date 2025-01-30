@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\DTO\SubscriptionDTO;
-use App\Repository\ContactRepository;
-use App\Repository\SubscriptionRepository;
+use App\DTO\SubscriptionUpdateDTO;
 use App\Service\SubscriptionService;
-use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -121,7 +119,7 @@ final class SubscriptionController extends AbstractController
         summary: 'Update an existing subscription',
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(ref: new Model(type: SubscriptionDTO::class), type: 'object')
+            content: new OA\JsonContent(ref: new Model(type: SubscriptionUpdateDTO::class), type: 'object')
         ),
         tags: ['subscriptions'],
         parameters: [
@@ -162,7 +160,7 @@ final class SubscriptionController extends AbstractController
     ): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $dto = new SubscriptionDTO($data);
+        $dto = new SubscriptionUpdateDTO($data);
 
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {

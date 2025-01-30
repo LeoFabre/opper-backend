@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use App\DTO\SubscriptionDTO;
+use App\DTO\SubscriptionUpdateDTO;
 use App\Entity\Contact;
 use App\Entity\Subscription;
 use App\Repository\ContactRepository;
@@ -75,7 +76,7 @@ class SubscriptionService
         ], Response::HTTP_CREATED);
     }
 
-    public function update(int $idSubscription, SubscriptionDTO $dto): JsonResponse
+    public function update(int $idSubscription, SubscriptionUpdateDTO $dto): JsonResponse
     {
         $subscription = $this->subscriptionRepository->find($idSubscription);
         if (!$subscription) {

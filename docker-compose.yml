@@ -13,7 +13,7 @@ services:
       - "9000:9000"
     depends_on:
       - db
-    command: bash -c "composer install && php-fpm"
+    command: bash -c "composer install && sleep 2 && php bin/console doctrine:schema:update --force --no-interaction && php bin/console doctrine:fixtures:load --no-interaction && php-fpm "
 
   web:
     image: nginx:latest

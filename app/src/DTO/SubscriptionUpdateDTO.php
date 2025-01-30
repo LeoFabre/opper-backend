@@ -4,26 +4,21 @@ namespace App\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class SubscriptionDTO
+class SubscriptionUpdateDTO
 {
-    #[Assert\NotBlank]
     #[Assert\Type("string")]
     public string $contactName;
 
-    #[Assert\NotBlank]
     #[Assert\Type("string")]
     public string $contactFirstName;
 
-    #[Assert\NotBlank]
     #[Assert\Type("integer")]
-    #[Assert\GreaterThanOrEqual(1)]
+    #[Assert\GreaterThanOrEqual(0)]
     public int $productId;
 
-    #[Assert\NotBlank]
     #[Assert\Date]
     public string $beginDate;
 
-    #[Assert\NotBlank]
     #[Assert\Date]
     public string $endDate;
 
