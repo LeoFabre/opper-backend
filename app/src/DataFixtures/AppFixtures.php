@@ -12,7 +12,6 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Créer des contacts
         $contacts = [];
         for ($i = 1; $i <= 5; $i++) {
             $contact = new Contact();
@@ -22,7 +21,6 @@ class AppFixtures extends Fixture
             $contacts[] = $contact;
         }
 
-        // Créer des produits
         $products = [];
         for ($i = 1; $i <= 5; $i++) {
             $product = new Product();
@@ -33,16 +31,15 @@ class AppFixtures extends Fixture
 
         $manager->flush();
 
-        // Créer des subscriptions (1 produit par contact)
-        foreach ($contacts as $index => $contact) {
-            // On attribue un produit unique à chaque contact
-            $product = $products[$index % count($products)];
-            $subscription = new Subscription();
-            $subscription->setContact($contact);
-            $subscription->setProduct($product);
-            $subscription->setBeginDate(new DateTime('2025-01-01'));
-            $subscription->setEndDate(new DateTime('2025-12-31'));
-            $manager->persist($subscription);
+        foreach ($contacts as $contact) {
+            foreach ($products as $product) {
+                $subscription = new Subscription();
+                $subscription->setContact($contact);
+                $subscription->setProduct($product);
+                $subscription->setBeginDate(new DateTime('2025-01-01'));
+                $subscription->setEndDate(new DateTime('2025-12-31'));
+                $manager->persist($subscription);
+            }
         }
 
         $manager->flush();

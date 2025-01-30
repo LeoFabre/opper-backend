@@ -21,7 +21,7 @@ class Subscription
     #[ORM\JoinColumn(nullable: false)]
     private ?Contact $contact = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
 
