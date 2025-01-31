@@ -6,11 +6,11 @@ docker-compose up -d
 
 ## ⚡ *When running for the first time, please wait for the composer install and DB hydration process : **it takes about 2 minutes to complete**.*
 
-- Once done installing and starting the containers, the API is available at this base URL : [http://localhost:8080] 
+- Once done installing and starting the containers, the API is available at this base URL : <http://localhost:8080>
 
-- ❤️ For your comfort, a Swagger is available at this URL : [http://localhost:8080/api/doc]
+- ❤️ For your comfort, a Swagger is available at this URL : <http://localhost:8080/api/doc>
 
-- There is also a phpMyAdmin that you can use to inspect DB content : [http://localhost:8081] (id: symfony, password: symfony)
+- There is also a phpMyAdmin that you can use to inspect DB content _**(id: symfony, password: symfony)**_ : <http://localhost:8081> 
 
 # 🔎 Running Unit tests
 
